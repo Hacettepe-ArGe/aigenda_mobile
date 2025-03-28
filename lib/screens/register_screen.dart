@@ -88,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 if (validate()) {
                   final response = await AuthService().registerUser(_emailController.text, _passwordController.text);
                   if (response) {
-                    await UserService().sendUserInfoToFirestore(_usernameController.text, _emailController.text);
+                    await UserService().sendUserInfoToFirestore(_emailController.text, _usernameController.text);
                     if (context.mounted) {
                       context.showMessage("Registiration Succesfull!");
                       context.navigateRemoveUntil(Routes.home);
