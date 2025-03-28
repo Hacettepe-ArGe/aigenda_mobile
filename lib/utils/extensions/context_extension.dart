@@ -21,6 +21,7 @@ extension ContextExtension on BuildContext {
         arguments: arguments,
       );
 
+  Future pushReplacement(String routeName) => Navigator.of(this).pushReplacementNamed(routeName);
   Future navigateRemoveUntil(String routeName) => Navigator.of(this).pushNamedAndRemoveUntil(routeName, (_) => false);
   void showMessage(String text) => ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: Text(text)));
 }
