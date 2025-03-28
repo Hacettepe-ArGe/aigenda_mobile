@@ -16,17 +16,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Manage your tasks',
       'desc': 'You can easily manage all of your daily tasks in AIGenda for free.',
-      'image': 'assets/images/asset_manage_tasks.png',
+      'image': 'lib/assets/onboarding_image1.png',
     },
     {
       'title': 'Create daily routine',
       'desc': 'Create your personalized routine to stay productive.',
-      'image': 'assets/images/asset_create_routine.png',
+      'image': 'lib/assets/onboarding_image2.png',
     },
     {
       'title': 'Organize your tasks',
       'desc': 'Organize your tasks by adding them into categories.',
-      'image': 'assets/images/asset_organize_tasks.png',
+      'image': 'lib/assets/onboarding_image3.png',
     },
   ];
 
