@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../services/providers/user_provider.dart';
+import '../utils/constants/routes.dart';
+import '../utils/extensions/context_extension.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -184,7 +189,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const Divider(color: Colors.white30),
             const SizedBox(height: 16),
             TextButton(
-              onPressed: () {}, // TODO: implement logout
+              onPressed: () async {
+                await Provider.of<UserProvider>(context, listen: false).signOut();
+                if (context.mounted) {
+                  await context.navigateRemoveUntil(Routes.login);
+                }
+              },
               child: const Text("Log out", style: TextStyle(color: Colors.red)),
             )
           ],
