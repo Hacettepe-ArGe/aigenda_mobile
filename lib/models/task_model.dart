@@ -31,8 +31,8 @@ class Task {
       description: data['description'] ?? '',
       date: data['date'] != null ? data['date'].toDate() : DateTime.now(),
       time: TimeOfDay(hour: int.parse(data['time'].toString().split("*").first), minute: int.parse(data['time'].toString().split("*").last)),
-      priority: data['priority'],
-      category: data['category'],
+      priority: data['priority'] ?? 0,
+      category: Category.fromMap(data['category']),
       userid: data['userid'],
     );
   }
@@ -44,8 +44,8 @@ class Task {
       'description': description,
       'date': Timestamp.fromDate(date),
       'time': ("${time.hour}*${time.minute}"),
-      'prioirty': priority,
-      'category': category?.name,
+      'priority': priority,
+      'category': category?.toMap(),
       'userid': userid,
     };
   }
