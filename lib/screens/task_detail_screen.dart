@@ -162,7 +162,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     );
   }
 
-
   void _saveEdits() {
     final updatedTask = Task(
       title: _titleController.text,
@@ -171,6 +170,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       time: _selectedTime,
       priority: _priority,
       category: _selectedCategory, // ✅ Save category
+      id: widget.task.id,
+      userid: widget.task.userid,
     );
     widget.onUpdate(updatedTask);
     Navigator.pop(context);
@@ -272,15 +273,15 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               title: _selectedCategory == null
                   ? const Text('No Category', style: TextStyle(color: Colors.white54))
                   : Row(
-                children: [
-                  Icon(_selectedCategory!.icon, color: _selectedCategory!.color),
-                  const SizedBox(width: 8),
-                  Text(
-                    _selectedCategory!.name,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ],
-              ),
+                      children: [
+                        Icon(_selectedCategory!.icon, color: _selectedCategory!.color),
+                        const SizedBox(width: 8),
+                        Text(
+                          _selectedCategory!.name,
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
               trailing: TextButton(
                 onPressed: _editCategory,
                 child: const Text("Edit", style: TextStyle(color: Color(0xFF8687E7))),
