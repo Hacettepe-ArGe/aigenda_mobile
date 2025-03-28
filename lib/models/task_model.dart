@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'category_model.dart';
 
 class Task {
   String title;
@@ -6,6 +7,7 @@ class Task {
   DateTime date;
   TimeOfDay time;
   int priority;
+  Category? category; // ✅ new
 
   Task({
     required this.title,
@@ -13,5 +15,6 @@ class Task {
     required this.date,
     required this.time,
     required this.priority,
+    this.category,
   });
 }

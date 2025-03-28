@@ -59,17 +59,7 @@ class _CategoryListScreenState extends State<CategoryListScreen> {
           },
         ),
       ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF8687E7),
-            minimumSize: const Size(double.infinity, 48),
-          ),
-          onPressed: _openCreateCategory,
-          child: const Text('Add Category'),
-        ),
-      ),
+
     );
   }
 }
