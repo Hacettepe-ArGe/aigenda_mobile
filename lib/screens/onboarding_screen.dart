@@ -79,10 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const StartScreen()),
-                    );
+                    context.navigateRemoveUntil(Routes.start);
                   },
                   child: const Text('SKIP', style: TextStyle(color: Colors.white)),
                 ),
