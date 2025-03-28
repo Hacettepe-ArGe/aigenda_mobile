@@ -1,7 +1,7 @@
-import 'package:aigenda_mobile/screens/register_screen.dart';
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'login_screen.dart';
+
+import '../utils/constants/routes.dart';
+import '../utils/extensions/context_extension.dart';
 
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
@@ -48,10 +48,7 @@ class StartScreen extends StatelessWidget {
                   minimumSize: const Size(double.infinity, 48),
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
+                  context.navigate(Routes.login);
                 },
                 child: const Text('LOGIN'),
               ),
@@ -62,11 +59,7 @@ class StartScreen extends StatelessWidget {
                   minimumSize: const Size(double.infinity, 48),
                 ),
                 onPressed: () {
-                  // You can replace this with actual Register screen navigation
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                  );
+                  context.navigate(Routes.register);
                 },
                 child: const Text(
                   'CREATE ACCOUNT',
