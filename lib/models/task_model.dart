@@ -32,7 +32,7 @@ class Task {
       date: data['date'] != null ? data['date'].toDate() : DateTime.now(),
       time: TimeOfDay(hour: int.parse(data['time'].toString().split("*").first), minute: int.parse(data['time'].toString().split("*").last)),
       priority: data['priority'] ?? 0,
-      category: Category.fromMap(data['category']),
+      category: data['category'] != null ? Category.fromMap(data['category']) : null,
       userid: data['userid'],
     );
   }
