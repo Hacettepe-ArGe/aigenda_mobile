@@ -53,4 +53,8 @@ class UserProvider with ChangeNotifier {
       debugPrint(e.toString());
     }
   }
+
+  String? getUserId() {
+    return user?.id;
+  }
 }
