@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../services/firebase/model_based/user_service.dart';
 import '../services/providers/user_provider.dart';
 import '../utils/constants/routes.dart';
 import '../utils/extensions/context_extension.dart';
@@ -13,16 +14,24 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String userName = "Martha Hays";
   int tasksLeft = 10;
   int tasksDone = 5;
   ImageProvider avatar = const AssetImage('assets/images/profile_placeholder.png');
 
-  void _changeName() {
+  String aboutUs = """
+Here is our team:
+  - Yusuf İpek
+  - Emre Dalmış
+  - Muhammed Emir
+  - Ahmet Ertuğrul
+  - Ecesu Aracı
+          """;
+
+  void _changeName(String userId, String username) {
     showDialog(
       context: context,
       builder: (_) {
-        final controller = TextEditingController(text: userName);
+        final controller = TextEditingController(text: username);
         return AlertDialog(
           backgroundColor: Colors.black,
           title: const Text("Change account name", style: TextStyle(color: Colors.white)),
@@ -39,12 +48,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
           actions: [
             TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
             ElevatedButton(
-              onPressed: () {
-                setState(() => userName = controller.text);
-                Navigator.pop(context);
+              onPressed: () async {
+                await UserService().updateDocument(userId, {'username': controller.text}).then((data) {
+                  Navigator.pop(context);
+                  Provider.of<UserProvider>(context, listen: false).refreshUser();
+                });
               },
               child: const Text("Edit"),
             )
+          ],
+        );
+      },
+    );
+  }
+
+  void _aboutUs() {
+    showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          backgroundColor: Colors.black,
+          title: const Text("About Us", style: TextStyle(color: Colors.white)),
+          content: Text(aboutUs, style: const TextStyle(color: Colors.white)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
           ],
         );
       },
@@ -141,64 +168,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(title: const Text("Profile", style: TextStyle(color: Colors.white)), backgroundColor: Colors.black),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            /// Profile Info
-            Column(
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          if (!userProvider.isAuthenticated || userProvider.user == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                GestureDetector(
-                  onTap: _changeAvatar,
-                  child: CircleAvatar(
-                    radius: 40,
-                    backgroundImage: avatar,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(userName, style: const TextStyle(color: Colors.white, fontSize: 20)),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                /// Profile Info
+                Column(
                   children: [
-                    _statChip("$tasksLeft Task left"),
-                    const SizedBox(width: 8),
-                    _statChip("$tasksDone Task done"),
+                    GestureDetector(
+                      onTap: _changeAvatar,
+                      child: CircleAvatar(
+                        radius: 40,
+                        backgroundImage: avatar,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(userProvider.user!.username, style: const TextStyle(color: Colors.white, fontSize: 20)),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _statChip("$tasksLeft Task left"),
+                        const SizedBox(width: 8),
+                        _statChip("$tasksDone Task done"),
+                      ],
+                    ),
                   ],
                 ),
+
+                const SizedBox(height: 24),
+                const Divider(color: Colors.white30),
+
+                /// Settings
+                _buildTile("App Settings", Icons.settings, () {}),
+                _buildTile("Change account name", Icons.person, () => _changeName(userProvider.user!.id, userProvider.user!.username)),
+                _buildTile("Change account password", Icons.lock, _changePassword),
+                _buildTile("Change account image", Icons.image, _changeAvatar),
+
+                const Divider(color: Colors.white30),
+
+                /// Info
+                _buildTile("About Us", Icons.info_outline, _aboutUs),
+                _buildTile("FAQ", Icons.help_outline, () {}),
+                _buildTile("Help & Feedback", Icons.message, () {}),
+                _buildTile("Support Us", Icons.favorite, () {}),
+
+                const Divider(color: Colors.white30),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () async {
+                    await Provider.of<UserProvider>(context, listen: false).signOut();
+                    if (context.mounted) {
+                      await context.navigateRemoveUntil(Routes.login);
+                    }
+                  },
+                  child: const Text("Log out", style: TextStyle(color: Colors.red)),
+                )
               ],
             ),
-
-            const SizedBox(height: 24),
-            const Divider(color: Colors.white30),
-
-            /// Settings
-            _buildTile("App Settings", Icons.settings, () {}),
-            _buildTile("Change account name", Icons.person, _changeName),
-            _buildTile("Change account password", Icons.lock, _changePassword),
-            _buildTile("Change account image", Icons.image, _changeAvatar),
-
-            const Divider(color: Colors.white30),
-
-            /// Info
-            _buildTile("About Us", Icons.info_outline, () {}),
-            _buildTile("FAQ", Icons.help_outline, () {}),
-            _buildTile("Help & Feedback", Icons.message, () {}),
-            _buildTile("Support Us", Icons.favorite, () {}),
-
-            const Divider(color: Colors.white30),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () async {
-                await Provider.of<UserProvider>(context, listen: false).signOut();
-                if (context.mounted) {
-                  await context.navigateRemoveUntil(Routes.login);
-                }
-              },
-              child: const Text("Log out", style: TextStyle(color: Colors.red)),
-            )
-          ],
-        ),
+          );
+        },
       ),
     );
   }
