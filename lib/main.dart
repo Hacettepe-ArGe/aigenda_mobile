@@ -1,5 +1,6 @@
 import 'package:aigenda_mobile/screens/home_screen.dart';
 import 'package:aigenda_mobile/screens/login_screen.dart';
+import 'package:aigenda_mobile/screens/main_screen.dart';
 import 'package:aigenda_mobile/screens/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +34,7 @@ class MainApp extends StatelessWidget {
           Routes.register: (context) => const RegisterScreen(),
           Routes.start: (context) => const StartScreen(),
           Routes.home: (context) => const HomeScreen(),
+          Routes.main: (context) => const MainScreen(),
         },
       ),
     );

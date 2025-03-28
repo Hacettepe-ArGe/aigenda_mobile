@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'main_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../services/auth/auth_service.dart';
+import '../services/providers/user_provider.dart';
+import '../utils/constants/routes.dart';
+import '../utils/extensions/context_extension.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   @override
@@ -40,15 +44,15 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const SizedBox(height: 24),
             const Text(
-              'Username',
+              'Email',
               style: TextStyle(color: Colors.white70),
             ),
             const SizedBox(height: 8),
             TextField(
-              controller: _usernameController,
+              controller: _emailController,
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
-                hintText: 'Enter your Username',
+                hintText: 'Enter your Email',
                 hintStyle: const TextStyle(color: Colors.white38),
                 enabledBorder: OutlineInputBorder(
                   borderSide: const BorderSide(color: Colors.white24),
@@ -93,11 +97,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 backgroundColor: const Color(0xFF8687E7),
                 minimumSize: const Size(double.infinity, 50),
               ),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MainScreen()),
-                );
+              onPressed: () async {
+                if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
+                  final response = await AuthService().signInWithEmailAndPassword(
+                    _emailController.text,
+                    _passwordController.text,
+                  );
+                  if (response != null && response.username.isNotEmpty) {
+                    if (context.mounted) {
+                      Provider.of<UserProvider>(context, listen: false).setUser(response);
+                      context.navigateRemoveUntil(Routes.main);
+                    }
+                  } else {
+                    if (context.mounted) {
+                      context.showMessage("Invalid credentials!");
+                    }
+                  }
+                }
               },
               child: const Text('Login'),
             ),
@@ -114,21 +130,26 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             const Spacer(),
             Center(
-              child: RichText(
-                text: const TextSpan(
-                  text: "Don't have an account? ",
-                  style: TextStyle(color: Colors.white54),
-                  children: [
-                    TextSpan(
-                      text: 'Register',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
+              child: GestureDetector(
+                onTap: () {
+                  context.pushReplacement(Routes.register);
+                },
+                child: RichText(
+                  text: const TextSpan(
+                    text: "Don't have an account? ",
+                    style: TextStyle(color: Colors.white54),
+                    children: [
+                      TextSpan(
+                        text: 'Register',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
+                        // onTap action can be added here for registration page
                       ),
-                      // onTap action can be added here for registration page
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
