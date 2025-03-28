@@ -30,16 +30,33 @@ class TaskTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// Title
-            Text(
-              task.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            /// Top Row: Title + Category Icon
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    task.title,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (task.category != null)
+                  CircleAvatar(
+                    radius: 16,
+                    backgroundColor: task.category!.color.withOpacity(0.2),
+                    child: Icon(
+                      task.category!.icon,
+                      color: task.category!.color,
+                      size: 18,
+                    ),
+                  ),
+              ],
             ),
-
             const SizedBox(height: 8),
 
             /// Description
@@ -51,7 +68,7 @@ class TaskTile extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            /// Date + Time + Priority row
+            /// Date + Time + Priority
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
