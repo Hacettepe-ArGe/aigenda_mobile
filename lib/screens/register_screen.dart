@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'login_screen.dart';
+
+import '../services/auth/auth_service.dart';
+import '../services/firebase/model_based/user_service.dart';
+import '../utils/constants/routes.dart';
+import '../utils/extensions/context_extension.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -11,6 +14,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
@@ -48,6 +52,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
               decoration: _inputDecoration('Enter your Username'),
             ),
             const SizedBox(height: 20),
+            const Text('Email', style: TextStyle(color: Colors.white70)),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _emailController,
+              style: const TextStyle(color: Colors.white),
+              decoration: _inputDecoration('Enter your Email'),
+            ),
+            const SizedBox(height: 20),
             const Text('Password', style: TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
             TextField(
@@ -71,13 +83,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 backgroundColor: const Color(0xFF8687E7),
                 minimumSize: const Size(double.infinity, 50),
               ),
-              onPressed: () {
+              onPressed: () async {
                 // Simple check – you can replace with actual validation
-                if (_passwordController.text == _confirmPasswordController.text) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HomeScreen()),
-                  );
+                if (validate()) {
+                  final response = await AuthService().registerUser(_emailController.text, _passwordController.text);
+                  if (response) {
+                    await UserService().sendUserInfoToFirestore(_usernameController.text, _emailController.text);
+                    if (context.mounted) {
+                      context.showMessage("Registiration Succesfull!");
+                      context.navigateRemoveUntil(Routes.home);
+                    }
+                  } else {
+                    if (context.mounted) {
+                      context.showMessage("Registiration failed :/");
+                    }
+                  }
                 }
               },
               child: const Text('Register'),
@@ -97,10 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             Center(
               child: GestureDetector(
                 onTap: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                  );
+                  context.pushReplacement(Routes.login);
                 },
                 child: const Text.rich(
                   TextSpan(
@@ -125,6 +142,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  bool validate() {
+    if (_usernameController.text.isNotEmpty && _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty && _confirmPasswordController.text.isNotEmpty) {
+      if (_passwordController.text != _confirmPasswordController.text) {
+        return false;
+      }
+      if (!_emailController.text.contains('@')) {
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 
   InputDecoration _inputDecoration(String hint) {
