@@ -3,6 +3,7 @@ import 'package:aigenda_mobile/screens/login_screen.dart';
 import 'package:aigenda_mobile/screens/register_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'screens/start_screen.dart';
 import 'services/firebase/firebase_service.dart';
 import 'screens/splash_screen.dart';
 import 'services/providers/user_provider.dart';
@@ -30,6 +31,7 @@ class MainApp extends StatelessWidget {
           Routes.splash: (context) => const SplashScreen(),
           Routes.login: (context) => const LoginScreen(),
           Routes.register: (context) => const RegisterScreen(),
+          Routes.start: (context) => const StartScreen(),
           Routes.home: (context) => const HomeScreen(),
         },
       ),

@@ -4,6 +4,7 @@ class Routes {
   static const String register = '/register';
   static const String home = '/home';
   static const String userProfile = '/profile';
+  static const String start = '/start';
   static const String passForget = '/pass_forget';
   // Bottom Bar Indexes
   static const int homePageIndex = 1;
