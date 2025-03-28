@@ -21,12 +21,15 @@ class UserService extends FirestoreCrudService<User> {
     );
   }
 
-  Future<void> sendUserInfoToFirestore(String email, {bool update = false}) async {
+  Future<void> sendUserInfoToFirestore(String email, String username, {bool update = false}) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
     final uid = user.uid;
 
-    final data = {'email': email};
+    final data = {
+      'email': email,
+      'username': username,
+    };
 
     if (update) {
       await getFirestoreInstance().collection(collectionPath).doc(uid).update(data);

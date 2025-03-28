@@ -16,6 +16,7 @@ class AuthService {
     return User(
       id: firebaseUser.uid,
       email: firebaseUser.email ?? firestoreUser.email,
+      username: firestoreUser.username,
       createdAt: firestoreUser.createdAt,
     );
   }
