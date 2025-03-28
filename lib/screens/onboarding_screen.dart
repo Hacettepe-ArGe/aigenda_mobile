@@ -1,4 +1,8 @@
+import 'package:aigenda_mobile/utils/extensions/string_extension.dart';
 import 'package:flutter/material.dart';
+
+import '../utils/constants/routes.dart';
+import '../utils/extensions/context_extension.dart';
 import 'start_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -16,17 +20,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     {
       'title': 'Manage your tasks',
       'desc': 'You can easily manage all of your daily tasks in AIGenda for free.',
-      'image': 'lib/assets/onboarding_image1.png',
+      'image': 'onboarding_image1.png',
     },
     {
       'title': 'Create daily routine',
       'desc': 'Create your personalized routine to stay productive.',
-      'image': 'lib/assets/onboarding_image2.png',
+      'image': 'onboarding_image2.png',
     },
     {
       'title': 'Organize your tasks',
       'desc': 'Organize your tasks by adding them into categories.',
-      'image': 'lib/assets/onboarding_image3.png',
+      'image': 'onboarding_image3.png',
     },
   ];
 
@@ -49,7 +53,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(onboardingData[index]['image']!, height: 250),
+                      Image.asset(onboardingData[index]['image']!.toAssetImage(), height: 250),
                       const SizedBox(height: 30),
                       Text(
                         onboardingData[index]['title']!,
@@ -85,7 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Row(
                   children: List.generate(
                     onboardingData.length,
-                        (index) => Container(
+                    (index) => Container(
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       width: 8,
                       height: 8,
@@ -99,6 +103,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 TextButton(
                   onPressed: () {
                     if (_currentPage == onboardingData.length - 1) {
+                      context.navigateRemoveUntil(Routes.start);
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => const StartScreen()),
