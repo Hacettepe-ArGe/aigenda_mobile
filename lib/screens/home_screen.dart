@@ -1,5 +1,10 @@
+import 'package:aigenda_mobile/services/firebase/model_based/task_service.dart';
+import 'package:aigenda_mobile/utils/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/task_model.dart';
+import '../models/user.dart';
+import '../services/providers/user_provider.dart';
 import '../widgets/add_task_modal.dart';
 import '../widgets/task_tile.dart';
 import 'task_detail_screen.dart';
@@ -12,12 +17,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Task> _tasks = [];
+  User? user;
+  List<Task> _tasks = [];
 
-  void _addTask(Task task) {
-    setState(() {
-      _tasks.add(task);
-    });
+  void _addTask(Task task) async {
+    if (user != null) {
+      task.userid = user!.id;
+      try {
+        await TaskService().createDocument(task);
+      } catch (e) {
+        context.showMessage("Something went wrong :/");
+      }
+    }
   }
 
   void _showAddTaskModal() {
@@ -40,15 +51,19 @@ class _HomeScreenState extends State<HomeScreen> {
       MaterialPageRoute(
         builder: (_) => TaskDetailScreen(
           task: _tasks[index],
-          onDelete: () {
-            setState(() {
-              _tasks.removeAt(index);
-            });
+          onDelete: () async {
+            try {
+              await TaskService().deleteDocument(_tasks[index].id!);
+            } catch (e) {
+              context.showMessage("Something went wrong :/");
+            }
           },
-          onUpdate: (updated) {
-            setState(() {
-              _tasks[index] = updated;
-            });
+          onUpdate: (updated) async {
+            try {
+              await TaskService().updateDocument(updated.id!, updated.toMap());
+            } catch (e) {
+              context.showMessage("Something went wrong :/");
+            }
           },
         ),
       ),
@@ -72,26 +87,46 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: EdgeInsets.only(right: 16),
             child: CircleAvatar(
-              backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+              child: Icon(Icons.person),
             ),
           ),
         ],
       ),
-      body: _tasks.isEmpty
-          ? const Center(
-        child: Text(
-          "What do you want to do today?\nTap + to add your tasks",
-          style: TextStyle(color: Colors.white70, fontSize: 16),
-          textAlign: TextAlign.center,
-        ),
-      )
-          : ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _tasks.length,
-        itemBuilder: (_, index) {
-          return GestureDetector(
-            onTap: () => _openTaskDetail(index),
-            child: TaskTile(task: _tasks[index]),
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          if (!userProvider.isAuthenticated || userProvider.user == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          user = userProvider.user!;
+          return StreamBuilder<List<Task>>(
+            stream: TaskService().getDocumentsByQueryOrderBy('userid', userProvider.user!.id, true, 'date'),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasData) {
+                _tasks = snapshot.data ?? [];
+                return _tasks.isEmpty
+                    ? const Center(
+                        child: Text(
+                          "What do you want to do today?\nTap + to add your tasks",
+                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                          textAlign: TextAlign.center,
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _tasks.length,
+                        itemBuilder: (_, index) {
+                          return GestureDetector(
+                            onTap: () => _openTaskDetail(index),
+                            child: TaskTile(task: _tasks[index]),
+                          );
+                        },
+                      );
+              } else {
+                return const Center(child: Text("Something went wrong :/"));
+              }
+            },
           );
         },
       ),
@@ -100,7 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
         onPressed: _showAddTaskModal,
         child: const Icon(Icons.add),
       ),
-
     );
   }
 }

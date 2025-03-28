@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import '../models/task_model.dart';
+import '../services/firebase/model_based/task_service.dart';
+import '../services/providers/user_provider.dart';
 import '../widgets/task_tile.dart';
 import '../widgets/add_task_modal.dart';
 
@@ -12,9 +15,23 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  final List<Task> _allTasks = [];
+  late List<Task> _allTasks = [];
   DateTime _selectedDate = DateTime.now();
   bool _showCompleted = false;
+
+  @override
+  void didChangeDependencies() {
+    final userId = Provider.of<UserProvider>(context, listen: false).getUserId();
+    if (userId != null) {
+      TaskService().getDocumentsByQueryOrderBy('userid', userId, true, 'date').listen(
+            (tasks) => setState(() {
+              _allTasks = tasks;
+            }),
+          );
+    }
+
+    super.didChangeDependencies();
+  }
 
   void _addTask(Task task) {
     setState(() {
@@ -36,9 +53,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   List<Task> get _filteredTasks {
     return _allTasks.where((task) {
-      return task.date.year == _selectedDate.year &&
-          task.date.month == _selectedDate.month &&
-          task.date.day == _selectedDate.day;
+      return task.date.year == _selectedDate.year && task.date.month == _selectedDate.month && task.date.day == _selectedDate.day;
     }).toList();
   }
 
@@ -64,9 +79,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 itemCount: 30,
                 itemBuilder: (_, index) {
                   final date = DateTime.now().add(Duration(days: index));
-                  final isSelected = _selectedDate.day == date.day &&
-                      _selectedDate.month == date.month &&
-                      _selectedDate.year == date.year;
+                  final isSelected = _selectedDate.day == date.day && _selectedDate.month == date.month && _selectedDate.year == date.year;
 
                   return GestureDetector(
                     onTap: () => setState(() => _selectedDate = date),
@@ -83,14 +96,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(DateFormat.E().format(date),
-                              style: const TextStyle(color: Colors.white70)),
+                          Text(DateFormat.E().format(date), style: const TextStyle(color: Colors.white70)),
                           const SizedBox(height: 4),
-                          Text("${date.day}",
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: isSelected ? Colors.white : Colors.white)),
+                          Text("${date.day}", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isSelected ? Colors.white : Colors.white)),
                         ],
                       ),
                     ),
@@ -129,17 +137,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
           Expanded(
             child: _filteredTasks.isEmpty
                 ? const Center(
-              child: Text("No tasks for this day",
-                  style: TextStyle(color: Colors.white70)),
-            )
+                    child: Text("No tasks for this day", style: TextStyle(color: Colors.white70)),
+                  )
                 : ListView.builder(
-              itemCount: _filteredTasks.length,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemBuilder: (_, index) {
-                final task = _filteredTasks[index];
-                return TaskTile(task: task);
-              },
-            ),
+                    itemCount: _filteredTasks.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemBuilder: (_, index) {
+                      final task = _filteredTasks[index];
+                      return TaskTile(task: task);
+                    },
+                  ),
           ),
         ],
       ),
@@ -152,7 +159,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
 
       /// 🔽 Bottom Navigation (index = 1 for calendar)
-
     );
   }
 }
